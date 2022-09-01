@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:note_taker/Navigations/Screens/add_screen.dart';
+import 'package:note_taker/Navigations/Screens/viewing_screen.dart';
 import 'package:note_taker/Screensections/staggered_grid.dart';
 import 'package:note_taker/homepage.dart';
 
@@ -13,9 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       darkTheme: ThemeData.light(),
-      home: StaggeredGridBuilder(),
+      home: Homepage(),
     );
   }
 }

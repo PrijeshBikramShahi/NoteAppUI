@@ -1,6 +1,9 @@
+import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:note_taker/Screensections/staggered_grid.dart';
 
 class MainBody extends StatefulWidget {
   const MainBody({Key? key}) : super(key: key);
@@ -10,38 +13,42 @@ class MainBody extends StatefulWidget {
 }
 
 class _MainBodyState extends State<MainBody> {
+  TextEditingController textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 70),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Notes",
-                  style: TextStyle(fontSize: 25),
-                ),
-                InkWell(
-                  onTap: () {
-                    print("search tap");
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      color: Color.fromARGB(255, 89, 89, 89),
-                      padding: EdgeInsets.all(10),
-                      child: Icon(Icons.search_rounded),
-                    ),
-                  ),
-                )
-              ],
-            ),
+      backgroundColor: Color.fromARGB(255, 30, 30, 30),
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        toolbarHeight: 78,
+        backgroundColor: Color.fromARGB(255, 30, 30, 30),
+        flexibleSpace: Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Notes",
+                style: TextStyle(fontSize: 25),
+              ),
+              Column(
+                children: [
+                  AnimSearchBar(
+                      autoFocus: false,
+                      color: Color.fromARGB(255, 49, 49, 49),
+                      rtl: true,
+                      width: 260,
+                      textController: textController,
+                      onSuffixTap: () {
+                        print("tapped");
+                      }),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
+      body: StaggeredGridBuilder(),
     );
   }
 }
