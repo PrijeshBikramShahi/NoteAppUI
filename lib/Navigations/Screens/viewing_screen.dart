@@ -74,7 +74,7 @@ class _ViewScreenState extends State<ViewScreen> {
           children: [
             Container(
               child: Text(
-                "New Flutter Weather API is outstanding",
+                titleController.text,
                 style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class _ViewScreenState extends State<ViewScreen> {
             SizedBox(height: 25),
             Container(
               child: Text(
-                textData,
+                bodyController.text,
                 style: TextStyle(fontSize: 19),
               ),
             )

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
+import '../../Lists/colorlist.dart';
+import '../../Screensections/staggered_grid.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+
+import '../../dbstuff/mydbservice.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({Key? key}) : super(key: key);
@@ -10,12 +13,31 @@ class AddScreen extends StatefulWidget {
 }
 
 class _AddScreenState extends State<AddScreen> {
+  TextEditingController newTitleController = titleController;
+  TextEditingController newBodyController = bodyController;
   final requiredValidator =
       RequiredValidator(errorText: "This field cannot be empty");
   final descValidator = MultiValidator([
     RequiredValidator(errorText: "title cannot be empty"),
     MaxLengthValidator(5, errorText: "errorText")
   ]);
+
+  addNote() async {
+    await DbService.addNote(
+      body: newBodyController.text,
+      title: newTitleController.text,
+    );
+    getNote();
+  }
+
+  getNote() async {
+    final result = await DbService.getNote();
+
+    DbService.notes = result;
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +80,11 @@ class _AddScreenState extends State<AddScreen> {
                       Column(
                         children: [
                           InkWell(
-                            onTap: () {
-                              print("save tapped");
+                            onTap: () async {
+                              addNote();
                               Navigator.pop(context);
+                              newTitleController.clear();
+                              newBodyController.clear();
                             },
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(7),
@@ -88,29 +112,34 @@ class _AddScreenState extends State<AddScreen> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               color: Color.fromARGB(255, 30, 30, 30),
-              child: Column(
-                children: [
-                  TextFormField(
-                    maxLines: 4,
-                    validator: requiredValidator,
-                    decoration: InputDecoration(
-                      enabledBorder: InputBorder.none,
-                      hintText: "Enter a title",
-                      labelText: "Title",
-                      labelStyle: TextStyle(fontSize: 30),
+              child: ListView(children: [
+                Column(
+                  children: [
+                    TextFormField(
+                      controller: newTitleController,
+                      maxLines: 4,
+                      validator: requiredValidator,
+                      decoration: InputDecoration(
+                        enabledBorder: InputBorder.none,
+                        hintText: "Enter a title",
+                        labelText: "Title",
+                        labelStyle: TextStyle(fontSize: 30),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      enabledBorder: InputBorder.none,
-                      hintText: "Enter a description",
-                      labelText: "Type something...",
-                      labelStyle: TextStyle(fontSize: 15),
+                    // SizedBox(height: 5),
+                    TextFormField(
+                      controller: newBodyController,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        enabledBorder: InputBorder.none,
+                        hintText: "Enter a description",
+                        labelText: "Type something...",
+                        labelStyle: TextStyle(fontSize: 15),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ]),
             ),
           ),
         ],

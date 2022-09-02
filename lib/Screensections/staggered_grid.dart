@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../Navigations/Screens/add_screen.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 // import 'package:hover_effect/hover_effect.dart';
 import 'package:note_taker/Navigations/Screens/viewing_screen.dart';
@@ -9,6 +9,7 @@ import 'package:sqflite/sqflite.dart';
 import '../Lists/colorlist.dart';
 // import '../dbstuff/dbservice.dart';
 import 'package:path/path.dart';
+import '../dbstuff/mydbservice.dart';
 
 class StaggeredGridBuilder extends StatefulWidget {
   const StaggeredGridBuilder({Key? key}) : super(key: key);
@@ -20,75 +21,49 @@ class StaggeredGridBuilder extends StatefulWidget {
 class _StaggeredGridBuilderState extends State<StaggeredGridBuilder> {
   int _version = 1;
 
-  List notes = [];
-
   late Database dbase;
   @override
   void initState() {
     // colorList.shuffle(); // TODO: implement initState
-    initDatabase();
+    initAndGetNotes();
+
     super.initState();
   }
 
-  initDatabase() async {
-    final dir = await getApplicationDocumentsDirectory();
-
-    final dbPath = join(dir.path + '/app_ko_db.db');
-
-    print(dbPath);
-    final db = await openDatabase(
-      dbPath,
-      version: _version,
-      onConfigure: (db) {
-        try {
-          db.execute('''
-
-          CREATE TABLE IF NOT EXISTS notes(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR,
-            body TEXT,
-            dateCreated VARCHAR,
-            dateUpdated VARCHAR
-          );
-
-        ''');
-        } catch (e) {
-          print(e);
-        }
-      },
-      onOpen: (db) {},
-    );
-    dbase = db;
-  }
-
   addNote() async {
-    print("clciked");
-    try {
-      await dbase.insert("notes", {
-        "title": "THE TITLE",
-        "body": "This is the body",
-        "dateCreated": DateTime.now().toLocal().toString(),
-      });
-    } catch (e) {
-      print(e);
-    }
+    await DbService.addNote(
+      body: bodyController.text,
+      title: titleController.text,
+    );
+    getNote();
+    setState(() {});
   }
 
   getNote() async {
-    print("clicekd2");
-    try {
-      final result = await dbase.query("notes");
+    final result = await DbService.getNote();
 
-      notes = result;
-      print(notes.length);
-    } catch (e) {
-      print(e);
-    }
+    DbService.notes = result;
+
+    setState(() {});
+  }
+
+  initAndGetNotes() {
+    DbService.initDatabase().then((value) {
+      getNote();
+    });
+  }
+
+  deleteNote(int id) async {
+    await DbService.deleteNote(id);
+    getNote();
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Padding(
+  Widget build(BuildContext context) => StaggeredGridViewScreen();
+  Widget StaggeredGridViewScreen() {
+    return Column(
+      children: [
+        Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -124,71 +99,81 @@ class _StaggeredGridBuilderState extends State<StaggeredGridBuilder> {
             ],
           ),
         ),
-      );
-  // StaggeredGridViewScreen();
-}
-
-Widget StaggeredGridViewScreen() {
-  return Padding(
-    padding: const EdgeInsets.only(left: 20, right: 20, top: 1),
-    child: GridView.custom(
-        physics: BouncingScrollPhysics(),
-        gridDelegate: SliverQuiltedGridDelegate(
-            repeatPattern: QuiltedGridRepeatPattern.inverted,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 12,
-            crossAxisCount: 4,
-            pattern: [
-              QuiltedGridTile(2, 2),
-              QuiltedGridTile(2, 2),
-              QuiltedGridTile(2, 4),
-              QuiltedGridTile(4, 2),
-              QuiltedGridTile(2, 2),
-              QuiltedGridTile(2, 2),
-              QuiltedGridTile(3, 4),
-            ]),
-        childrenDelegate: SliverChildBuilderDelegate(
-            childCount: colorList.length, (context, index) {
-          return InkWell(
-            onTap: () {
-              print("tapped");
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewScreen(),
-                  ));
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: EdgeInsets.all(15),
-                color: colorList[index],
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      // color: Colors.black,
-                      width: 220,
-                      child: Text(
-                        "dataaaaaaaaaaaaaaaaaaaaaddddddddaaaaaaaaaaaaaaaaaaaaaaaa",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400),
-                        overflow: TextOverflow.clip,
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, top: 1),
+            child: GridView.custom(
+                physics: BouncingScrollPhysics(),
+                gridDelegate: SliverQuiltedGridDelegate(
+                    repeatPattern: QuiltedGridRepeatPattern.inverted,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 12,
+                    crossAxisCount: 4,
+                    pattern: [
+                      QuiltedGridTile(2, 2),
+                      QuiltedGridTile(2, 2),
+                      QuiltedGridTile(2, 4),
+                      QuiltedGridTile(4, 2),
+                      QuiltedGridTile(2, 2),
+                      QuiltedGridTile(2, 2),
+                      QuiltedGridTile(3, 4),
+                    ]),
+                childrenDelegate: SliverChildBuilderDelegate(
+                    childCount: DbService.notes.length, (context, index) {
+                  final item = DbService.notes[index];
+                  return InkWell(
+                    onTap: () {
+                      print("tapped");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewScreen(),
+                          ));
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: EdgeInsets.all(15),
+                        color: colorList[index],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              // color: Colors.black,
+                              width: 220,
+                              child: Text(
+                                item['title'],
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w400),
+                                overflow: TextOverflow.clip,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              item['dateCreated'],
+                              style: TextStyle(color: Colors.grey[800]),
+                            ),
+                            InkWell(
+                              onTap: () => deleteNote(item['id']),
+                              child: Container(
+                                child: Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      "2079-05-10",
-                      style: TextStyle(color: Colors.grey[800]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        })),
-  );
+                  );
+                })),
+          ),
+        ),
+      ],
+    );
+  }
 }

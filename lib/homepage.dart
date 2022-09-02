@@ -17,30 +17,29 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: MainBody(),
-      // floatingActionButton: Padding(
-      //   padding: const EdgeInsets.only(bottom: 0),
-      //   child: FloatingActionButton(
-      //     hoverColor: Colors.lightBlue,
-      //     elevation: 5,
-      //     splashColor: Colors.red,
-      //     backgroundColor: Color.fromARGB(255, 30, 30, 30),
-      //     onPressed: () {
-      //       print("edit tap");
-      //       Navigator.push(
-      //           context,
-      //           MaterialPageRoute(
-      //             builder: (context) => AddScreen(),
-      //           ));
-      //     },
-      //     child: Icon(
-      //       Icons.edit,
-      //       color: Color.fromARGB(255, 255, 255, 255),
-      //       size: 20,
-      //     ),
-      //   ),
-      // ),
-
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 0),
+        child: FloatingActionButton(
+          hoverColor: Colors.lightBlue,
+          elevation: 5,
+          splashColor: Colors.red,
+          backgroundColor: Color.fromARGB(255, 30, 30, 30),
+          onPressed: () {
+            print("edit tap");
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddScreen(),
+                ));
+          },
+          child: Icon(
+            Icons.edit,
+            color: Color.fromARGB(255, 255, 255, 255),
+            size: 20,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

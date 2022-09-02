@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+final titleController = TextEditingController();
+final bodyController = TextEditingController();
 List colorList = [
   Color(0xFFE7ED9B),
   Color(0xFFFEAB90),
